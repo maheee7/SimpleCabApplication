@@ -34,6 +34,11 @@ class DriverService {
             yield this.driverRepository.availableDriver(driver);
         });
     }
+    getDriverAvailability(driverId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.driverRepository.getDriverAvailability(driverId);
+        });
+    }
     getEmployeesByDriverId(driverId) {
         return __awaiter(this, void 0, void 0, function* () {
             return yield this.driverRepository.getEmployeesForDriver(driverId);

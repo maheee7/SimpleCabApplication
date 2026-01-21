@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { fetchTripDetails, markDriverAvailability, completeTrip } from "../../service/DriveService";
+import { fetchTripDetails, markDriverAvailability, completeTrip, getDriverAvailability } from "../../service/DriveService";
 import "./driver.css";
 
 interface TripDetails {
@@ -22,15 +22,40 @@ const DriverPage: React.FC = () => {
   const [isAvailable, setIsAvailable] = useState(false);
 
 
-  useEffect(() => {
-    if (!driverId) return;
-    fetchTrips(driverId);
-  }, [driverId]);
-
+  // Check driver availability first when driverId changes
   useEffect(() => {
     if (!driverId) {
       setIsAvailable(false);
+      setTripDetails([]);
+      return;
     }
+
+    const checkAvailability = async () => {
+      setIsLoading(true);
+      try {
+        const availabilityStatus = await getDriverAvailability(driverId);
+        console.log("Driver availability status:", availabilityStatus);
+        
+        if (availabilityStatus.available) {
+          // Driver is available, don't fetch trips
+          setIsAvailable(true);
+          setTripDetails([]);
+        } else {
+          // Driver is not available, fetch trips
+          setIsAvailable(false);
+          await fetchTrips(driverId);
+        }
+      } catch (error) {
+        console.error("Error checking driver availability:", error);
+        setIsAvailable(false);
+        // Try to fetch trips as fallback
+        await fetchTrips(driverId);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAvailability();
   }, [driverId]);
 
    const fetchTrips = async (driverId: number) => {
@@ -67,7 +92,6 @@ const completeTripDetials = async () => {
     // If all trips are completed, mark driver as available
     if (updatedTrips.length === 0) {
       console.log("All trips completed, marking driver as available");
-      await markDriverAvailability(driverId, selectedDate, true);
       alert("All trips completed! You are now available for new rides.");
     }
 
@@ -84,8 +108,7 @@ const handleMakeAvailable = async () => {
     await markDriverAvailability(driverId, selectedDate, true);
     setIsAvailable(true); // Mark driver as available
     alert("You are now available for new rides!");
-    // Refresh trips in case new assignments come in
-    await fetchTrips(driverId);
+    // No need to refresh trips since driver is available
   } catch (error) {
     console.error("Error marking driver as available:", error);
     alert("Failed to mark you as available. Please try again.");
@@ -114,20 +137,22 @@ const handleMakeAvailable = async () => {
 
       {isLoading && <p className="loading-message">Loading ride details...</p>}
 
-      {!isLoading && tripDetails.length === 0 && driverId && (
+      {!isLoading && isAvailable && driverId && (
+        <div className="no-rides-container">
+          <p className="available-status">✓ You are marked as available for new rides</p>
+        </div>
+      )}
+
+      {!isLoading && !isAvailable && tripDetails.length === 0 && driverId && (
         <div className="no-rides-container">
           <p className="no-rides-message">Currently no rides are assigned to you.</p>
-          {!isAvailable ? (
-            <button 
-              className="make-available-btn" 
-              onClick={handleMakeAvailable}
-              disabled={isMarkingAvailable}
-            >
-              {isMarkingAvailable ? "Marking Available..." : "Make Me Available"}
-            </button>
-          ) : (
-            <p className="available-status">✓ You are marked as available for new rides</p>
-          )}
+          <button 
+            className="make-available-btn" 
+            onClick={handleMakeAvailable}
+            disabled={isMarkingAvailable}
+          >
+            {isMarkingAvailable ? "Marking Available..." : "Make Me Available"}
+          </button>
         </div>
       )}
 

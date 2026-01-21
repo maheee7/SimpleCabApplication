@@ -48,6 +48,25 @@ export const availableDriver = async (req: Request, res: Response) => {
   }
 };
 
+export const checkDriverAvailability = async (req: Request, res: Response) => {
+  try {
+    const driverId = Number(req.params.driverId);
+    
+    if (isNaN(driverId)) {
+      res.status(400).json({ message: "Invalid driver ID" });
+      return;
+    }
+    
+    console.log("Checking availability for driver:", driverId);
+    const availability = await driverService.getDriverAvailability(driverId);
+    
+    res.status(200).json(availability);
+  } catch (error) {
+    console.error("Error checking driver availability:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 export const getAssignedEmployees = async (req: Request, res: Response) : Promise<any> => {
   try {
     const driverId = parseInt(req.params.driverId, 10);

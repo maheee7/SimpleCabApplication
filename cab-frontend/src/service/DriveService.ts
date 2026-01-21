@@ -10,6 +10,22 @@ interface TripDetails {
   date: string | null;
 }
 
+// Check driver availability status
+export async function getDriverAvailability(
+  driverId: number
+): Promise<{ available: boolean; driverId: number }> {
+  try {
+    const response = await clientservice(
+      "GET",
+      `/drivers/check-availability/${driverId}`
+    );
+    return response;
+  } catch (error) {
+    console.error("Error checking driver availability:", error);
+    throw error;
+  }
+}
+
 // Fetch trip details for a driver
 export async function fetchTripDetails(driverId: number): Promise<TripDetails[]> {
   try {

@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.completeTrip = exports.getAssignedEmployees = exports.availableDriver = exports.updateDriver = exports.getDrivers = exports.createDriver = void 0;
+exports.completeTrip = exports.getAssignedEmployees = exports.checkDriverAvailability = exports.availableDriver = exports.updateDriver = exports.getDrivers = exports.createDriver = void 0;
 const driver_service_1 = require("../service/driver.service");
 const driver_repository_1 = require("../repository/driver.repository");
 const driverService = new driver_service_1.DriverService(new driver_repository_1.DriverRepository());
@@ -58,6 +58,23 @@ const availableDriver = (req, res) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.availableDriver = availableDriver;
+const checkDriverAvailability = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const driverId = Number(req.params.driverId);
+        if (isNaN(driverId)) {
+            res.status(400).json({ message: "Invalid driver ID" });
+            return;
+        }
+        console.log("Checking availability for driver:", driverId);
+        const availability = yield driverService.getDriverAvailability(driverId);
+        res.status(200).json(availability);
+    }
+    catch (error) {
+        console.error("Error checking driver availability:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+});
+exports.checkDriverAvailability = checkDriverAvailability;
 const getAssignedEmployees = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const driverId = parseInt(req.params.driverId, 10);

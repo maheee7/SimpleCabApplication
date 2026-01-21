@@ -9,6 +9,7 @@ const driver_controller_1 = require("../controller/driver.controller");
 const router = express_1.default.Router();
 // Specific routes FIRST
 router.post('/availability', driver_controller_1.availableDriver);
+router.get('/check-availability/:driverId', driver_controller_1.checkDriverAvailability);
 router.post('/complete-trip', driver_controller_1.completeTrip);
 router.get('/trip/:driverId', driver_controller_1.getAssignedEmployees);
 // General routes LAST

@@ -23,6 +23,10 @@ export class DriverService {
   async availableDriver( driver: driverAvailable): Promise<void> {
     await this.driverRepository.availableDriver( driver);
   }
+
+  async getDriverAvailability(driverId: number): Promise<{ available: boolean; driverId: number }> {
+    return await this.driverRepository.getDriverAvailability(driverId);
+  }
   async getEmployeesByDriverId (driverId: number) : Promise<void>{
     return await this.driverRepository.getEmployeesForDriver(driverId);
   };

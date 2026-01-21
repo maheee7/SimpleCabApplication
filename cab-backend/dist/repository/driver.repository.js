@@ -99,86 +99,121 @@ class DriverRepository {
             }
         });
     }
+    getDriverAvailability(driverId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const numericDriverId = Number(driverId);
+                console.log("Checking driver availability for driver:", numericDriverId);
+                const [existing] = yield this.pool.query(`SELECT driver_id, available FROM driver_availability WHERE driver_id = ?`, [numericDriverId]);
+                console.log("Availability check result:", existing);
+                if (existing && Array.isArray(existing) && existing.length > 0) {
+                    // Record exists, return availability status
+                    const isAvailable = existing[0].available === 1 || existing[0].available === true;
+                    console.log("Driver found. Available:", isAvailable);
+                    return {
+                        available: isAvailable,
+                        driverId: numericDriverId
+                    };
+                }
+                else {
+                    // Record doesn't exist, create one with available = 0
+                    console.log("Driver not found in availability table. Creating new record with available = 0");
+                    const insertQuery = `INSERT INTO driver_availability (driver_id, available, avai_date) VALUES (?, ?, ?)`;
+                    const today = new Date().toISOString().split("T")[0];
+                    yield this.pool.query(insertQuery, [numericDriverId, 1, today]);
+                    console.log("New availability record created for driver:", numericDriverId);
+                    return {
+                        available: true,
+                        driverId: numericDriverId
+                    };
+                }
+            }
+            catch (error) {
+                console.error("Error getting driver availability:", error);
+                throw error;
+            }
+        });
+    }
     availableDriver(driver) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(driver, "from the availableDriver repository");
-                debugger;
+                // Ensure driverId is a number
+                const driverId = Number(driver.driverId);
+                const isAvailable = driver.isAvailable;
+                console.log("Converted values - driverId:", driverId, "isAvailable:", isAvailable);
                 // Check if driver availability record already exists
-                console.log("About to query driver_availability table for driver:", driver.driverId);
-                const [existing] = yield this.pool.query(`SELECT driver_id FROM driver_availability WHERE driver_id = ?`, [driver.driverId]);
-                console.log("Query result:", existing);
-                console.log("existing array:", existing);
-                console.log("Existing length:", existing.length, "Type:", typeof existing);
-                if (existing && existing.length > 0) {
+                const [existing] = yield this.pool.query(`SELECT driver_id FROM driver_availability WHERE driver_id = ?`, [driverId]);
+                console.log("Existing length:", existing.length);
+                if (existing && Array.isArray(existing) && existing.length > 0) {
                     // Driver record exists, so UPDATE it
-                    console.log("Driver record exists. Updating...");
+                    console.log("✓ Driver record EXISTS. Updating...");
                     const updateQuery = `UPDATE driver_availability 
           SET available = ?, avai_date = ? 
           WHERE driver_id = ?`;
-                    console.log("Updating driver availability for driver:", driver.driverId);
-                    console.log("Update values:", driver.isAvailable, driver.date);
-                    const updateResult = yield this.pool.query(updateQuery, [driver.isAvailable, driver.date, driver.driverId]);
-                    console.log("Update result:", updateResult);
+                    const [updateResult] = yield this.pool.query(updateQuery, [isAvailable ? 1 : 0, driver.date, driverId]);
+                    console.log("Update successful. Affected rows:", updateResult.affectedRows);
                     return { success: true, message: 'Driver availability updated successfully' };
                 }
                 else {
                     // Driver record doesn't exist, so INSERT a new one
-                    console.log("Driver record does NOT exist. Inserting new record...");
+                    console.log("✗ Driver record does NOT exist. Creating new record...");
                     const insertQuery = `INSERT INTO driver_availability (driver_id, available, avai_date) VALUES (?, ?, ?)`;
-                    console.log("Inserting new driver availability for driver:", driver.driverId);
-                    console.log("Insert values:", driver.driverId, driver.isAvailable, driver.date);
-                    const insertResult = yield this.pool.query(insertQuery, [driver.driverId, driver.isAvailable, driver.date]);
-                    console.log("Insert result:", insertResult);
+                    const [insertResult] = yield this.pool.query(insertQuery, [driverId, isAvailable ? 1 : 0, driver.date]);
+                    console.log("Insert successful. Inserted ID:", insertResult.insertId);
                     return { success: true, message: 'Driver availability created successfully' };
                 }
             }
             catch (error) {
-                console.error('CATCH BLOCK - Error updating/creating driver availability:', error);
-                console.error('Error message:', error.message);
-                console.error('Error code:', error.code);
+                console.error("Error updating/creating driver availability:", error);
                 throw error;
             }
         });
     }
     getEmployeesForDriver(driverId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = `
-      SELECT 
-        e.name AS employeeName, 
-        e.id AS employeeId, 
-        e.phone AS employeeNumber, 
-        d.id AS driverId, 
-        d.name AS driverName, 
-        d.phone AS driverNumber, 
-        v.vehicle_number AS cabNumber, 
-        v.type AS vehicleType, 
-        cr.time_slot, 
-        cr.date, 
-        cr.status, 
-        cr.route_id,
-        ta.id as trip_id,
-        da.available AS driverAvailable, da.avai_date AS availabilityDate
-      FROM cab_requests AS cr
-      INNER JOIN trip_allocations AS ta ON ta.request_id = cr.id
-      INNER JOIN employees e ON e.id = cr.employee_id
-      INNER JOIN drivers d ON ta.driver_id = d.id
-      INNER JOIN vehicles v ON v.id = ta.vehicle_id
-      INNER JOIN driver_availability da ON da.driver_id = d.id
-      WHERE d.id = ? and ta.status = 'Allocated';
-    `;
-            const [rows] = yield this.pool.query(query, [driverId]);
-            console.log(rows, "rows from getEmployeesForDriver");
-            if (rows.length === 0) {
-                const query = `select * from driver_availability where driver_id = ?`;
+            try {
+                const query = `
+        SELECT 
+          e.name AS employeeName, 
+          e.id AS employeeId, 
+          e.phone AS employeeNumber, 
+          d.id AS driverId, 
+          d.name AS driverName, 
+          d.phone AS driverNumber, 
+          v.vehicle_number AS cabNumber, 
+          v.type AS vehicleType, 
+          cr.time_slot, 
+          cr.date, 
+          cr.status, 
+          cr.route_id,
+          ta.id as trip_id,
+          da.available AS driverAvailable, da.avai_date AS availabilityDate
+        FROM cab_requests AS cr
+        INNER JOIN trip_allocations AS ta ON ta.request_id = cr.id
+        INNER JOIN employees e ON e.id = cr.employee_id
+        INNER JOIN drivers d ON ta.driver_id = d.id
+        INNER JOIN vehicles v ON v.id = ta.vehicle_id
+        INNER JOIN driver_availability da ON da.driver_id = d.id
+        WHERE d.id = ? and ta.status = 'Allocated';
+      `;
                 const [rows] = yield this.pool.query(query, [driverId]);
-                console.log(rows, "rows.length");
+                console.log(rows, "rows from getEmployeesForDriver");
+                if (rows.length === 0) {
+                    // No allocated trips, check availability record
+                    const availabilityQuery = `SELECT driver_id as driverId, available as driverAvailable, avai_date as availabilityDate FROM driver_availability WHERE driver_id = ?`;
+                    const [availabilityRows] = yield this.pool.query(availabilityQuery, [driverId]);
+                    console.log(availabilityRows, "availability rows");
+                    return availabilityRows;
+                }
                 return rows;
             }
-            return rows;
+            catch (error) {
+                console.error("Error in getEmployeesForDriver:", error);
+                throw error;
+            }
         });
     }
-    ;
     completeTrip(driverId, tripId) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = `
