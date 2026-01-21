@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import { logout } from "../../service/AuthService";
 import { fetchTripDetails, markDriverAvailability, completeTrip, getDriverAvailability } from "../../service/DriveService";
 import "./driver.css";
 
@@ -13,6 +15,16 @@ interface TripDetails {
 }
 
 const DriverPage: React.FC = () => {
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error('Logout failed', err);
+    } finally {
+      navigate('/');
+    }
+  };
   const [driverId, setDriverId] = useState<number | null>(null);
   const [tripDetails, setTripDetails] = useState<TripDetails[]>([]);
   const [selectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
@@ -122,7 +134,10 @@ const handleMakeAvailable = async () => {
 
   return (
     <div className="container">
-      <h2>Driver Dashboard</h2>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        <h2>Driver Dashboard</h2>
+        <button className="logout-btn" onClick={handleLogout} style={{padding: '6px 10px', cursor: 'pointer'}}>Logout</button>
+      </div>
 
       <div className="input-section">
         <label htmlFor="driverId">Enter Driver ID:</label>

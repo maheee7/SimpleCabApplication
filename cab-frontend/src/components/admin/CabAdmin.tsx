@@ -1,9 +1,21 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import { logout } from "../../service/AuthService";
 import { Driver, RideRequest } from "../interface";
 import { fetchPendingRequests, fetchAvailableDrivers, assignDriver } from "../../service/AdminService";
 import './cab.css';
 
 const AdminPage: React.FC = () => {
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error('Logout failed', err);
+    } finally {
+      navigate('/');
+    }
+  };
   const [requests, setRequests] = useState<RideRequest[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [selectedRequests, setSelectedRequests] = useState<number[]>([]);
@@ -53,7 +65,10 @@ const AdminPage: React.FC = () => {
 
   return (
     <div className="admin-container">
-      <h1 className="dashboard-title">Admin Dashboard</h1>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        <h1 className="dashboard-title">Admin Dashboard</h1>
+        <button onClick={handleLogout} style={{padding: '6px 10px', cursor: 'pointer'}}>Logout</button>
+      </div>
 
       {/* Grid Layout for Side-by-Side Display */}
       <div className="grid-container">

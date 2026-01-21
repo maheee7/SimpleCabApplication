@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import { logout } from "../../service/AuthService";
 import { checkBookingStatus, bookRide, cancelRide } from "../../service/EmployeeService";
 import "./EmployeePage.css";
 
@@ -9,6 +11,29 @@ interface CabDetails {
 }
 
 const EmployeeBookingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (err) {
+      console.error('Logout failed', err);
+    } finally {
+      // Ensure tokens cleared and navigate to login; fallback to full reload
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+      try {
+        navigate('/', { replace: true });
+        setTimeout(() => {
+          if (window.location.pathname !== '/') {
+            window.location.href = '/';
+          }
+        }, 200);
+      } catch (navErr) {
+        window.location.href = '/';
+      }
+    }
+  };
   const locations = ["Guindy", "Vadapalani", "Kundrathur"];
   const timeSlots = ["10:00 AM", "10:30 AM", "11:00 AM", "7:00 PM", "7:30 PM", "8:00 PM", "8:30 PM", "9:00 PM"];
 
@@ -131,7 +156,10 @@ const EmployeeBookingPage: React.FC = () => {
   
   return (
     <div className="container">
-      <h1 className="heading">Employee Ride Booking</h1>
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+        <h1 className="heading">Employee Ride Booking</h1>
+        <button onClick={handleLogout} style={{padding: '6px 10px', cursor: 'pointer'}}>Logout</button>
+      </div>
 
       <label className="label">Enter Employee ID:</label>
       <input type="text" className="input" value={employeeId} onChange={(e) => setEmployeeId(e.target.value)} />

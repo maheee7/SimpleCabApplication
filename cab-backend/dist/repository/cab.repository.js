@@ -164,7 +164,7 @@ ORDER BY cr.date ASC, cr.time_slot ASC;
       SELECT * FROM cab_requests 
       WHERE employee_id = ? 
       AND status IN ('Pending', 'Allocated') 
-      AND date = CURDATE();
+      AND date IN (CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 DAY));
     `;
             const [rows] = yield this.pool.query(query, [employeeId]);
             console.log(rows, "from repository"); // Should print an array of results
