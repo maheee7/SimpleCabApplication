@@ -7,10 +7,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const driver_controller_1 = require("../controller/driver.controller");
 const router = express_1.default.Router();
+// Specific routes FIRST
+router.post('/availability', driver_controller_1.availableDriver);
+router.post('/complete-trip', driver_controller_1.completeTrip);
+router.get('/trip/:driverId', driver_controller_1.getAssignedEmployees);
+// General routes LAST
 router.post('/', driver_controller_1.createDriver);
 router.get('/', driver_controller_1.getDrivers);
 router.put('/:id', driver_controller_1.updateDriver);
-router.post('/availability', driver_controller_1.availableDriver);
-router.get('/trip/:driverId', driver_controller_1.getAssignedEmployees);
-router.post('/complete-trip', driver_controller_1.completeTrip);
 exports.default = router;

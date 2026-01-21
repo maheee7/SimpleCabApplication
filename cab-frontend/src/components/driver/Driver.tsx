@@ -15,14 +15,22 @@ interface TripDetails {
 const DriverPage: React.FC = () => {
   const [driverId, setDriverId] = useState<number | null>(null);
   const [tripDetails, setTripDetails] = useState<TripDetails[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
+  const [selectedDate] = useState<string>(new Date().toISOString().split("T")[0]);
   const [confirmTripId, setConfirmTripId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isMarkingAvailable, setIsMarkingAvailable] = useState(false);
+  const [isAvailable, setIsAvailable] = useState(false);
 
 
   useEffect(() => {
     if (!driverId) return;
     fetchTrips(driverId);
+  }, [driverId]);
+
+  useEffect(() => {
+    if (!driverId) {
+      setIsAvailable(false);
+    }
   }, [driverId]);
 
    const fetchTrips = async (driverId: number) => {
@@ -67,6 +75,24 @@ const completeTripDetials = async () => {
     console.error("Error completing trip:", error);
   }
 };
+
+const handleMakeAvailable = async () => {
+  if (!driverId) return;
+
+  setIsMarkingAvailable(true);
+  try {
+    await markDriverAvailability(driverId, selectedDate, true);
+    setIsAvailable(true); // Mark driver as available
+    alert("You are now available for new rides!");
+    // Refresh trips in case new assignments come in
+    await fetchTrips(driverId);
+  } catch (error) {
+    console.error("Error marking driver as available:", error);
+    alert("Failed to mark you as available. Please try again.");
+  } finally {
+    setIsMarkingAvailable(false);
+  }
+};
   
   // Debugging log to check values
   console.log("Trip Details Length:", tripDetails.length);
@@ -89,7 +115,20 @@ const completeTripDetials = async () => {
       {isLoading && <p className="loading-message">Loading ride details...</p>}
 
       {!isLoading && tripDetails.length === 0 && driverId && (
-        <p className="no-rides-message">Currently no rides are assigned to you.</p>
+        <div className="no-rides-container">
+          <p className="no-rides-message">Currently no rides are assigned to you.</p>
+          {!isAvailable ? (
+            <button 
+              className="make-available-btn" 
+              onClick={handleMakeAvailable}
+              disabled={isMarkingAvailable}
+            >
+              {isMarkingAvailable ? "Marking Available..." : "Make Me Available"}
+            </button>
+          ) : (
+            <p className="available-status">✓ You are marked as available for new rides</p>
+          )}
+        </div>
       )}
 
       {tripDetails.length > 0 && (

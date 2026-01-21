@@ -102,14 +102,41 @@ class DriverRepository {
     availableDriver(driver) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // Insert driver
-                console.log(driver);
-                const query = `INSERT INTO driver_availability (driver_id, available,avai_date) VALUES (?, ?,?)`;
-                yield this.pool.execute(query, [driver.driverId, driver.isAvailable, driver.date]);
-                return { success: true };
+                console.log(driver, "from the availableDriver repository");
+                debugger;
+                // Check if driver availability record already exists
+                console.log("About to query driver_availability table for driver:", driver.driverId);
+                const [existing] = yield this.pool.query(`SELECT driver_id FROM driver_availability WHERE driver_id = ?`, [driver.driverId]);
+                console.log("Query result:", existing);
+                console.log("existing array:", existing);
+                console.log("Existing length:", existing.length, "Type:", typeof existing);
+                if (existing && existing.length > 0) {
+                    // Driver record exists, so UPDATE it
+                    console.log("Driver record exists. Updating...");
+                    const updateQuery = `UPDATE driver_availability 
+          SET available = ?, avai_date = ? 
+          WHERE driver_id = ?`;
+                    console.log("Updating driver availability for driver:", driver.driverId);
+                    console.log("Update values:", driver.isAvailable, driver.date);
+                    const updateResult = yield this.pool.query(updateQuery, [driver.isAvailable, driver.date, driver.driverId]);
+                    console.log("Update result:", updateResult);
+                    return { success: true, message: 'Driver availability updated successfully' };
+                }
+                else {
+                    // Driver record doesn't exist, so INSERT a new one
+                    console.log("Driver record does NOT exist. Inserting new record...");
+                    const insertQuery = `INSERT INTO driver_availability (driver_id, available, avai_date) VALUES (?, ?, ?)`;
+                    console.log("Inserting new driver availability for driver:", driver.driverId);
+                    console.log("Insert values:", driver.driverId, driver.isAvailable, driver.date);
+                    const insertResult = yield this.pool.query(insertQuery, [driver.driverId, driver.isAvailable, driver.date]);
+                    console.log("Insert result:", insertResult);
+                    return { success: true, message: 'Driver availability created successfully' };
+                }
             }
             catch (error) {
-                console.error('Error creating driver:', error);
+                console.error('CATCH BLOCK - Error updating/creating driver availability:', error);
+                console.error('Error message:', error.message);
+                console.error('Error code:', error.code);
                 throw error;
             }
         });
@@ -130,16 +157,24 @@ class DriverRepository {
         cr.date, 
         cr.status, 
         cr.route_id,
-        ta.id as trip_id 
+        ta.id as trip_id,
+        da.available AS driverAvailable, da.avai_date AS availabilityDate
       FROM cab_requests AS cr
       INNER JOIN trip_allocations AS ta ON ta.request_id = cr.id
       INNER JOIN employees e ON e.id = cr.employee_id
       INNER JOIN drivers d ON ta.driver_id = d.id
       INNER JOIN vehicles v ON v.id = ta.vehicle_id
+      INNER JOIN driver_availability da ON da.driver_id = d.id
       WHERE d.id = ? and ta.status = 'Allocated';
     `;
             const [rows] = yield this.pool.query(query, [driverId]);
-            console.log(rows);
+            console.log(rows, "rows from getEmployeesForDriver");
+            if (rows.length === 0) {
+                const query = `select * from driver_availability where driver_id = ?`;
+                const [rows] = yield this.pool.query(query, [driverId]);
+                console.log(rows, "rows.length");
+                return rows;
+            }
             return rows;
         });
     }

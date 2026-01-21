@@ -34,9 +34,16 @@ export const updateDriver = async (req: Request, res: Response) => {
 
 export const availableDriver = async (req: Request, res: Response) => {
   try {
-    await driverService.availableDriver(req.body);
-    res.json({ message: 'Driver currently available' });
+    console.log("=== availableDriver controller called ===");
+    console.log("Request body:", req.body);
+    
+    const result = await driverService.availableDriver(req.body);
+    
+    console.log("Service returned:", result);
+    res.json({ message: 'Driver currently available', result });
   } catch (error) {
+    console.error("=== availableDriver controller ERROR ===");
+    console.error("Error:", error);
     res.status(500).json({ message: 'Internal Server Error', error });
   }
 };

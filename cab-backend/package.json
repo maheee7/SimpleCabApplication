@@ -12,11 +12,16 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
-    "typescript": "^5.8.2"
+    "@types/node": "^25.0.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon ./dist/index.js"
+    "build": "tsc",
+    "start": "npm run build && node ./dist/index.js",
+    "dev": "nodemon -r ts-node/register src/index.ts",
+    "dev:debug": "nodemon --exec \"node --inspect\" -r ts-node/register src/index.ts"
   },
   "keywords": [],
   "author": "",

@@ -3,10 +3,15 @@ import express from 'express';
 import { availableDriver, completeTrip, createDriver, getAssignedEmployees,  getDrivers, updateDriver } from '../controller/driver.controller';
 
 const router = express.Router();
+
+// Specific routes FIRST
+router.post('/availability', availableDriver);
+router.post('/complete-trip', completeTrip);
+router.get('/trip/:driverId', getAssignedEmployees);
+
+// General routes LAST
 router.post('/', createDriver);
 router.get('/', getDrivers);
 router.put('/:id', updateDriver);
-router.post('/availability',availableDriver);
-router.get('/trip/:driverId',getAssignedEmployees );
-router.post('/complete-trip',completeTrip );
+
 export default router;

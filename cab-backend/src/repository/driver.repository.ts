@@ -104,29 +104,49 @@ export class DriverRepository {
   
   async availableDriver(driver: driverAvailable): Promise<{ success: boolean; message?: string }> {
     try {
-      console.log(driver);
-      
+      console.log(driver, "from the availableDriver repository");
+      debugger
       // Check if driver availability record already exists
-      const [existing]: any = await this.pool.execute(
+      console.log("About to query driver_availability table for driver:", driver.driverId);
+      
+      const [existing]: any = await this.pool.query(
         `SELECT driver_id FROM driver_availability WHERE driver_id = ?`,
         [driver.driverId]
       );
-
-      if (existing.length > 0) {
+      
+      console.log("Query result:", existing);
+      console.log("existing array:", existing);
+      console.log("Existing length:", existing.length, "Type:", typeof existing);
+      
+      if (existing && existing.length > 0) {
         // Driver record exists, so UPDATE it
+        console.log("Driver record exists. Updating...");
         const updateQuery = `UPDATE driver_availability 
           SET available = ?, avai_date = ? 
           WHERE driver_id = ?`;
-        await this.pool.execute(updateQuery, [driver.isAvailable, driver.date, driver.driverId]);
+        console.log("Updating driver availability for driver:", driver.driverId);
+        console.log("Update values:", driver.isAvailable, driver.date);
+        
+        const updateResult = await this.pool.query(updateQuery, [driver.isAvailable, driver.date, driver.driverId]);
+        console.log("Update result:", updateResult);
+        
         return { success: true, message: 'Driver availability updated successfully' };
       } else {
         // Driver record doesn't exist, so INSERT a new one
+        console.log("Driver record does NOT exist. Inserting new record...");
         const insertQuery = `INSERT INTO driver_availability (driver_id, available, avai_date) VALUES (?, ?, ?)`;
-        await this.pool.execute(insertQuery, [driver.driverId, driver.isAvailable, driver.date]);
+        console.log("Inserting new driver availability for driver:", driver.driverId);
+        console.log("Insert values:", driver.driverId, driver.isAvailable, driver.date);
+        
+        const insertResult = await this.pool.query(insertQuery, [driver.driverId, driver.isAvailable, driver.date]);
+        console.log("Insert result:", insertResult);
+        
         return { success: true, message: 'Driver availability created successfully' };
       }
     } catch (error) {
-      console.error('Error updating/creating driver availability:', error);
+      console.error('CATCH BLOCK - Error updating/creating driver availability:', error);
+      console.error('Error message:', (error as any).message);
+      console.error('Error code:', (error as any).code);
       throw error;
     }
   }
@@ -146,21 +166,27 @@ export class DriverRepository {
         cr.date, 
         cr.status, 
         cr.route_id,
-        ta.id as trip_id 
+        ta.id as trip_id,
+        da.available AS driverAvailable, da.avai_date AS availabilityDate
       FROM cab_requests AS cr
       INNER JOIN trip_allocations AS ta ON ta.request_id = cr.id
       INNER JOIN employees e ON e.id = cr.employee_id
       INNER JOIN drivers d ON ta.driver_id = d.id
       INNER JOIN vehicles v ON v.id = ta.vehicle_id
+      INNER JOIN driver_availability da ON da.driver_id = d.id
       WHERE d.id = ? and ta.status = 'Allocated';
     `;
   
     const [rows]: any = await this.pool.query(query, [driverId]);
     console.log(rows,"rows from getEmployeesForDriver");
     if (rows.length === 0) {
+     const query = `select driver_id as driverID, available as driverAvailable, avai_date as availabilityDate from driver_availability where driver_id = ?`;
+    const [rows]: any = await this.pool.query(query, [driverId]);
+    console.log(rows,"rows.length");
+    
+    return rows;
 
     }
-    
     return rows;
   };
   async completeTrip (driverId: number, tripId: number): Promise<void> {
