@@ -6,14 +6,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // src/route/driver.route.ts
 const express_1 = __importDefault(require("express"));
 const driver_controller_1 = require("../controller/driver.controller");
+const driver_service_1 = require("../service/driver.service");
+const driver_repository_1 = require("../repository/driver.repository");
 const router = express_1.default.Router();
+// Instantiate controller with dependencies
+const driverRepository = new driver_repository_1.DriverRepository();
+const driverService = new driver_service_1.DriverService(driverRepository);
+const driverController = new driver_controller_1.DriverController(driverService);
 // Specific routes FIRST
-router.post('/availability', driver_controller_1.availableDriver);
-router.get('/check-availability/:driverId', driver_controller_1.checkDriverAvailability);
-router.post('/complete-trip', driver_controller_1.completeTrip);
-router.get('/trip/:driverId', driver_controller_1.getAssignedEmployees);
+router.post('/availability', (req, res) => driverController.availableDriver(req, res));
+router.get('/check-availability/:driverId', (req, res) => driverController.checkDriverAvailability(req, res));
+router.post('/complete-trip', (req, res) => driverController.completeTrip(req, res));
+router.get('/trip/:driverId', (req, res) => driverController.getAssignedEmployees(req, res));
 // General routes LAST
-router.post('/', driver_controller_1.createDriver);
-router.get('/', driver_controller_1.getDrivers);
-router.put('/:id', driver_controller_1.updateDriver);
+router.post('/', (req, res) => driverController.createDriver(req, res));
+router.get('/', (req, res) => driverController.getDrivers(req, res));
+router.put('/:id', (req, res) => driverController.updateDriver(req, res));
 exports.default = router;

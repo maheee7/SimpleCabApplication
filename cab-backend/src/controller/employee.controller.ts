@@ -1,33 +1,38 @@
 // src/controller/employee.controller.ts
 import { Request, Response } from 'express';
 import { EmployeeService } from '../service/employee.service';
-import { EmployeeRepository } from '../repository/employee.repository';
 
-const employeeService = new EmployeeService(new EmployeeRepository());
+export class EmployeeController {
+  private employeeService: EmployeeService;
 
-export const createEmployee = async (req: Request, res: Response) => {
-  try {
-    await employeeService.createEmployee(req.body);
-    res.status(201).json({ message: 'Employee added successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+  constructor(employeeService: EmployeeService) {
+    this.employeeService = employeeService;
   }
-};
 
-export const getEmployees = async (req: Request, res: Response) => {
-  try {
-    const employees = await employeeService.getEmployees();
-    res.json(employees);
-  } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+  async createEmployee(req: Request, res: Response) {
+    try {
+      await this.employeeService.createEmployee(req.body);
+      res.status(201).json({ message: 'Employee added successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Internal Server Error', error });
+    }
   }
-};
 
-export const updateEmployee = async (req: Request, res: Response) => {
-  try {
-    await employeeService.updateEmployee(Number(req.params.id), req.body);
-    res.json({ message: 'Employee updated successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error', error });
+  async getEmployees(req: Request, res: Response) {
+    try {
+      const employees = await this.employeeService.getEmployees();
+      res.json(employees);
+    } catch (error) {
+      res.status(500).json({ message: 'Internal Server Error', error });
+    }
   }
-};
+
+  async updateEmployee(req: Request, res: Response) {
+    try {
+      await this.employeeService.updateEmployee(Number(req.params.id), req.body);
+      res.json({ message: 'Employee updated successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Internal Server Error', error });
+    }
+  }
+}

@@ -6,8 +6,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 // src/route/employee.route.ts
 const express_1 = __importDefault(require("express"));
 const employee_controller_1 = require("../controller/employee.controller");
+const employee_service_1 = require("../service/employee.service");
+const employee_repository_1 = require("../repository/employee.repository");
 const router = express_1.default.Router();
-router.post('/', employee_controller_1.createEmployee);
-router.get('/', employee_controller_1.getEmployees);
-router.put('/:id', employee_controller_1.updateEmployee);
+// Instantiate controller with dependencies
+const employeeRepository = new employee_repository_1.EmployeeRepository();
+const employeeService = new employee_service_1.EmployeeService(employeeRepository);
+const employeeController = new employee_controller_1.EmployeeController(employeeService);
+router.post('/', (req, res) => employeeController.createEmployee(req, res));
+router.get('/', (req, res) => employeeController.getEmployees(req, res));
+router.put('/:id', (req, res) => employeeController.updateEmployee(req, res));
 exports.default = router;
