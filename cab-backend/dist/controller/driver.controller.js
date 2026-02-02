@@ -18,10 +18,16 @@ class DriverController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.driverService.createDriver(req.body);
-                res.status(201).json({ message: 'Driver added successfully' });
+                res.status(201).json({
+                    status: 'success',
+                    message: 'Driver added successfully'
+                });
             }
             catch (error) {
-                res.status(500).json({ message: 'Internal Server Error', error });
+                res.status(500).json({
+                    status: 'error',
+                    errors: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' }
+                });
             }
         });
     }
@@ -29,10 +35,17 @@ class DriverController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const drivers = yield this.driverService.getDrivers();
-                res.status(200).json(drivers);
+                res.status(200).json({
+                    status: 'success',
+                    data: drivers,
+                    message: 'Drivers retrieved successfully'
+                });
             }
             catch (error) {
-                res.status(500).json({ message: 'Internal Server Error', error });
+                res.status(500).json({
+                    status: 'error',
+                    errors: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' }
+                });
             }
         });
     }
@@ -40,26 +53,35 @@ class DriverController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 yield this.driverService.updateDriver(Number(req.params.id), req.body);
-                res.json({ message: 'Driver updated successfully' });
+                res.json({
+                    status: 'success',
+                    message: 'Driver updated successfully'
+                });
             }
             catch (error) {
-                res.status(500).json({ message: 'Internal Server Error', error });
+                res.status(500).json({
+                    status: 'error',
+                    errors: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' }
+                });
             }
         });
     }
     availableDriver(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log("=== availableDriver controller called ===");
-                console.log("Request body:", req.body);
                 const result = yield this.driverService.availableDriver(req.body);
-                console.log("Service returned:", result);
-                res.json({ message: 'Driver currently available', result });
+                res.json({
+                    status: 'success',
+                    data: result,
+                    message: 'Driver availability updated'
+                });
             }
             catch (error) {
-                console.error("=== availableDriver controller ERROR ===");
-                console.error("Error:", error);
-                res.status(500).json({ message: 'Internal Server Error', error });
+                console.error("availableDriver error:", error);
+                res.status(500).json({
+                    status: 'error',
+                    errors: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' }
+                });
             }
         });
     }
@@ -68,16 +90,25 @@ class DriverController {
             try {
                 const driverId = Number(req.params.driverId);
                 if (isNaN(driverId)) {
-                    res.status(400).json({ message: "Invalid driver ID" });
+                    res.status(400).json({
+                        status: 'error',
+                        errors: { code: 'INVALID_ID', message: 'Invalid driver ID' }
+                    });
                     return;
                 }
-                console.log("Checking availability for driver:", driverId);
                 const availability = yield this.driverService.getDriverAvailability(driverId);
-                res.status(200).json(availability);
+                res.status(200).json({
+                    status: 'success',
+                    data: availability,
+                    message: 'Driver availability retrieved'
+                });
             }
             catch (error) {
                 console.error("Error checking driver availability:", error);
-                res.status(500).json({ message: "Internal Server Error" });
+                res.status(500).json({
+                    status: 'error',
+                    errors: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' }
+                });
             }
         });
     }
@@ -86,15 +117,25 @@ class DriverController {
             try {
                 const driverId = parseInt(req.params.driverId, 10);
                 if (isNaN(driverId)) {
-                    res.status(400).json({ message: "Invalid driver ID" });
+                    res.status(400).json({
+                        status: 'error',
+                        errors: { code: 'INVALID_ID', message: 'Invalid driver ID' }
+                    });
                     return;
                 }
                 const assignedEmployees = yield this.driverService.getEmployeesByDriverId(driverId);
-                res.status(200).json(assignedEmployees);
+                res.status(200).json({
+                    status: 'success',
+                    data: assignedEmployees,
+                    message: 'Assigned employees retrieved successfully'
+                });
             }
             catch (error) {
                 console.error("Error fetching assigned employees:", error);
-                res.status(500).json({ message: "Internal Server Error" });
+                res.status(500).json({
+                    status: 'error',
+                    errors: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' }
+                });
             }
         });
     }
@@ -102,18 +143,25 @@ class DriverController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { driverId, trip_id } = req.body;
-                console.log(driverId, trip_id, req.body);
                 if (!driverId || !trip_id) {
-                    res.status(400).json({ message: "Driver ID and Trip ID are required." });
+                    res.status(400).json({
+                        status: 'error',
+                        errors: { code: 'MISSING_PARAMS', message: 'Driver ID and Trip ID are required' }
+                    });
                     return;
                 }
-                console.log(driverId, trip_id);
                 yield this.driverService.completeTrip(driverId, trip_id);
-                res.status(200).json({ message: "Trip marked as completed. Driver is now available." });
+                res.status(200).json({
+                    status: 'success',
+                    message: 'Trip marked as completed'
+                });
             }
             catch (error) {
                 console.error("Error marking trip as completed:", error);
-                res.status(500).json({ message: "Internal Server Error" });
+                res.status(500).json({
+                    status: 'error',
+                    errors: { code: 'INTERNAL_SERVER_ERROR', message: 'Internal Server Error' }
+                });
             }
         });
     }

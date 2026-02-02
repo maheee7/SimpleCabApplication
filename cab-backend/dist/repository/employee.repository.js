@@ -34,10 +34,38 @@ class EmployeeRepository {
             }
         });
     }
-    getEmployees() {
+    getEmployees(search, limit, offset) {
         return __awaiter(this, void 0, void 0, function* () {
-            const [rows] = yield this.pool.execute('SELECT * FROM employees');
-            return rows;
+            let query = 'SELECT * FROM employees';
+            let countQuery = 'SELECT COUNT(*) as total FROM employees';
+            const params = [];
+            const countParams = [];
+            if (search) {
+                const searchPattern = `%${search}%`;
+                query += ' WHERE name LIKE ? OR email LIKE ? OR phone LIKE ?';
+                countQuery += ' WHERE name LIKE ? OR email LIKE ? OR phone LIKE ?';
+                params.push(searchPattern, searchPattern, searchPattern);
+                countParams.push(searchPattern, searchPattern, searchPattern);
+            }
+            if (limit !== undefined && offset !== undefined) {
+                query += ' LIMIT ? OFFSET ?';
+                params.push(Number(limit), Number(offset));
+            }
+            console.log(query, params, "the query and params");
+            try {
+                const [rows] = yield this.pool.query(query, params);
+                const [countRows] = yield this.pool.query(countQuery, countParams);
+                console.log(rows, "the rows");
+                console.log(countRows, "the countRows");
+                return {
+                    employee: rows,
+                    totalcount: countRows[0].total
+                };
+            }
+            catch (dbError) {
+                console.error('Database execution error in getEmployees:', dbError);
+                throw dbError;
+            }
         });
     }
     updateEmployee(id, employee) {

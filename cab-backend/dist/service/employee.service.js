@@ -19,9 +19,14 @@ class EmployeeService {
             yield this.employeeRepository.createEmployee(employee);
         });
     }
-    getEmployees() {
+    getEmployees(search, limit, offset) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.employeeRepository.getEmployees();
+            return yield this.employeeRepository.getEmployees(search, limit, offset);
+        });
+    }
+    deleteEmployee(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.employeeRepository.deleteEmployee(id);
         });
     }
     updateEmployee(id, employee) {

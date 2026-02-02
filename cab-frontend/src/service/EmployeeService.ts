@@ -4,7 +4,7 @@ import { clientservice } from "../client/client";
 export async function checkBookingStatus(employeeId: number) {
   try {
     const response = await clientservice("GET", `/check-booking?employeeId=${employeeId}`);
-    return response;
+    return response.data;
   } catch (error) {
     console.error("Error checking booking status:", error);
     throw error;
@@ -27,7 +27,7 @@ export async function bookRide(
       date,
       timeSlot,
     });
-    return response;
+    return response.data;
   } catch (error) {
     console.error("Error booking ride:", error);
     throw error;
@@ -40,7 +40,7 @@ export async function cancelRide(employeeId: string) {
     const response = await clientservice("POST", "/employee/cancel-ride", {
       employeeId,
     });
-    return response;
+    return response.data;
   } catch (error) {
     console.error("Error canceling ride:", error);
     throw error;

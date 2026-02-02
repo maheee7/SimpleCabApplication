@@ -19,7 +19,7 @@ export async function getDriverAvailability(
       "GET",
       `/drivers/check-availability/${driverId}`
     );
-    return response;
+    return response.data;
   } catch (error) {
     console.error("Error checking driver availability:", error);
     throw error;
@@ -30,7 +30,8 @@ export async function getDriverAvailability(
 export async function fetchTripDetails(driverId: number): Promise<TripDetails[]> {
   try {
     const response = await clientservice("GET", `/drivers/trip/${driverId}`);
-    return Array.isArray(response) ? response : response.tripDetails;
+    const data = response.data;
+    return Array.isArray(data) ? data : data.tripDetails;
   } catch (error) {
     console.error("Error fetching trip details:", error);
     throw error;
@@ -49,7 +50,7 @@ export async function markDriverAvailability(
       date,
       isAvailable,
     });
-    return response;
+    return response.data;
   } catch (error) {
     console.error("Error updating availability:", error);
     throw error;
@@ -63,7 +64,7 @@ export async function completeTrip(driverId: number, tripId: number) {
       driverId,
       trip_id: tripId,
     });
-    return response;
+    return response.data;
   } catch (error) {
     console.error("Error completing trip:", error);
     throw error;

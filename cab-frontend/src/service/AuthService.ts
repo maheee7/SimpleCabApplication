@@ -37,7 +37,7 @@ export interface TokenRefreshResponse {
 export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
   try {
     const response = await clientservice('POST', '/auth/login', credentials);
-    return response;
+    return response.data;
   } catch (error) {
     console.error('Login error:', error);
     throw error;
@@ -48,7 +48,7 @@ export async function login(credentials: LoginCredentials): Promise<AuthResponse
 export async function signup(credentials: SignupCredentials): Promise<AuthResponse> {
   try {
     const response = await clientservice('POST', '/auth/signup', credentials);
-    return response;
+    return response.data;
   } catch (error) {
     console.error('Signup error:', error);
     throw error;
@@ -61,7 +61,7 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenRef
     const response = await clientservice('POST', '/auth/refresh-token', {
       refreshToken,
     });
-    return response;
+    return response.data;
   } catch (error) {
     console.error('Refresh token error:', error);
     throw error;
@@ -75,7 +75,7 @@ export async function verifyToken(accessToken: string): Promise<{ message: strin
     const response = await clientservice('GET', '/auth/verify-token', {}, {
       Authorization: `Bearer ${accessToken}`,
     });
-    return response;
+    return response.data;
   } catch (error) {
     console.error('Token verification error:', error);
     throw error;
@@ -88,7 +88,7 @@ export async function resetPassword(newPassword: string, confirmPassword: string
     const body: any = { newPassword, confirmPassword };
     if (email) body.email = email;
     const response = await clientservice('POST', '/auth/reset-password', body);
-    return response;
+    return response.data;
   } catch (error) {
     console.error('Reset password error:', error);
     throw error;
@@ -103,7 +103,7 @@ export async function logout(): Promise<{ message: string }> {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
-    return response;
+    return response.data;
   } catch (error) {
     console.error('Logout error:', error);
     throw error;

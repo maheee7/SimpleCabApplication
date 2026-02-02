@@ -3,7 +3,8 @@
   padding: 24px;
   font-family: Arial, sans-serif;
   background-color: #f8f9fa;
-  color: #333; /* Dark Font */
+  color: #333;
+  /* Dark Font */
 }
 
 /* Dashboard Title */
@@ -25,7 +26,8 @@
 
 /* Section Styling */
 .section {
-  width: 48%; /* Adjust for proper spacing */
+  width: 48%;
+  /* Adjust for proper spacing */
   background: white;
   padding: 16px;
   border-radius: 8px;
@@ -105,9 +107,218 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .grid-container {
-      flex-direction: column;
+    flex-direction: column;
   }
+
   .section {
-      width: 100%;
+    width: 100%;
   }
+}
+
+/* Grid Controls */
+.grid-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.search-box {
+  flex: 1;
+  position: relative;
+}
+
+.search-box input {
+  width: 90%;
+  padding: 10px 15px;
+  border-radius: 25px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
+}
+
+.view-toggle button {
+  padding: 8px 16px;
+  border: 1px solid #007bff;
+  background: white;
+  color: #007bff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-toggle button.active {
+  background: #007bff;
+  color: white;
+}
+
+.view-toggle button:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.view-toggle button:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  background: #f1f1f1;
+  cursor: not-allowed;
+  color: #999;
+}
+
+.load-more {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 30px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.load-more:disabled {
+  background: #a5d6a7;
+  cursor: not-allowed;
+}
+
+.bottom-loading {
+  text-align: center;
+  padding: 15px;
+  color: #666;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Action Buttons */
+.action-btn {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+  font-size: 12px;
+}
+
+.edit-btn {
+  background: #ffc107;
+  color: #000;
+}
+
+.delete-btn {
+  background: #dc3545;
+  color: #fff;
+}
+
+.add-btn {
+  background: #007bff;
+  color: white;
+  padding: 10px 20px;
+  float: right;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  width: 450px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn {
+  background: #6c757d;
+  color: white;
+}
+
+.save-btn {
+  background: #007bff;
+  color: white;
 }

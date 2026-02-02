@@ -4,6 +4,7 @@ import Signup from "./components/auth/signup";
 import ResetPassword from "./components/auth/reset-password";
 import EmployeeBookingPage from "./components/employee/EmployeePage";
 import AdminPage from "./components/admin/CabAdmin";
+import ManageUsers from "./components/admin/ManageUsers";
 import DriverPage from "./components/driver/Driver";
 import { isAuthenticated, getStoredUser } from "./service/AuthService";
 
@@ -38,6 +39,7 @@ const App: React.FC = () => {
         <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/employee" element={<ProtectedRoute element={<EmployeeBookingPage />} allowedRoles={['EMPLOYEE', 'ADMIN']} />} />
         <Route path="/admin" element={<ProtectedRoute element={<AdminPage />} allowedRoles={['ADMIN']} />} />
+        <Route path="/manage-users" element={<ProtectedRoute element={<ManageUsers />} allowedRoles={['ADMIN']} />} />
         <Route path="/driver" element={<ProtectedRoute element={<DriverPage />} allowedRoles={['DRIVER', 'ADMIN']} />} />
       </Routes>
     </Router>
