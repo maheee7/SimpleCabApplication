@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { fetchEmployees, createEmployee, updateEmployee, deleteEmployee } from '../../service/AdminService';
 import { Employee } from '../interface';
 import { getStoredUser } from '../../service/AuthService';
@@ -33,7 +33,7 @@ const ManageUsers: React.FC = () => {
     }
     const debouncedSearch = useDebounce(search, 500);
 
-    const loadEmployees = useCallback(async (isLoadMore = false) => {
+    async function loadEmployees(isLoadMore = false) {
         setLoading(true);
         try {
             const data = await fetchEmployees(debouncedSearch, page, limit);
@@ -49,8 +49,7 @@ const ManageUsers: React.FC = () => {
         } finally {
             setLoading(false);
         }
-    }, [debouncedSearch, page]);
-
+    }
     useEffect(() => {
         if (viewMode === 'Pagination') {
             loadEmployees(false);
@@ -59,7 +58,7 @@ const ManageUsers: React.FC = () => {
         } else if (viewMode === 'Loadmore' && page > 1) {
             loadEmployees(true);
         }
-    }, [debouncedSearch, page, viewMode, loadEmployees]);
+    }, [debouncedSearch, page, viewMode]);
 
     /* -------------------- */
     /* IntersectionObserver */
@@ -84,7 +83,6 @@ const ManageUsers: React.FC = () => {
         observer.observe(loadMoreRef.current);
         return () => observer.disconnect();
     }, [viewMode, loading, page, totalPages]);
-
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(e.target.value);

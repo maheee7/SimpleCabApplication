@@ -26,7 +26,7 @@ const authMiddleware = (req, res, next) => {
 exports.authMiddleware = authMiddleware;
 const adminMiddleware = (req, res, next) => {
     const user = req.user;
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || user.role !== 'admin') {
         res.status(403).json({ message: 'Access denied: Admin only' });
         return;
     }

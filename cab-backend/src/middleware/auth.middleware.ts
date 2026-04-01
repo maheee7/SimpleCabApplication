@@ -27,7 +27,7 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 export const adminMiddleware = (req: Request, res: Response, next: NextFunction) => {
     const user = (req as any).user as TokenPayload;
 
-    if (!user || user.role !== 'ADMIN') {
+    if (!user || user.role !== 'admin') {
         res.status(403).json({ message: 'Access denied: Admin only' });
         return;
     }
